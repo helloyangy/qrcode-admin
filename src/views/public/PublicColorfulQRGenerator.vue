@@ -526,6 +526,17 @@ onUnmounted(() => {
   margin-bottom: 40px;
 }
 
+.type-selector :deep(.el-radio-group) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.type-selector :deep(.el-radio-button) {
+  flex: 0 1 auto;
+}
+
 .type-selector :deep(.el-radio-button__inner) {
   padding: 12px 24px;
   font-size: 16px;
@@ -722,9 +733,66 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  .type-selector {
+    margin-bottom: 24px;
+  }
+
+  .type-selector :deep(.el-radio-group) {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .type-selector :deep(.el-radio-button) {
+    flex: 1 1 calc(33.33% - 8px);
+    min-width: 96px;
+  }
+
   .type-selector :deep(.el-radio-button__inner) {
     padding: 8px 12px;
     font-size: 14px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .input-item {
+    margin-bottom: 20px;
+    max-width: 100%;
+  }
+
+  .input-item :deep(.el-input__inner) {
+    height: 40px;
+  }
+
+  .input-item :deep(.el-textarea__inner) {
+    min-height: 120px;
+  }
+
+  .input-item :deep(.el-input-group__append) {
+    padding: 0;
+  }
+
+  .input-item :deep(.el-input-group__append .el-button) {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .upload-demo :deep(.el-upload-dragger) {
+    height: 160px;
+  }
+
+  .upload-demo .el-icon--upload {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+
+  .upload-demo .el-upload__text {
+    font-size: 13px;
+  }
+
+  .upload-demo :deep(.el-upload__tip) {
+    font-size: 12px;
   }
   
   .submit-btn {
@@ -733,6 +801,29 @@ onUnmounted(() => {
   
   .style-config-panel {
     padding: 20px;
+  }
+
+  .panel-title {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .preview-card {
+    padding: 20px;
+  }
+
+  .preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .preview-actions {
+    width: 100%;
+  }
+
+  .preview-actions :deep(.el-button) {
+    width: 100%;
   }
 }
 </style>
