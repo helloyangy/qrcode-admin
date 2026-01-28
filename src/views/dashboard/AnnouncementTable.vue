@@ -282,19 +282,23 @@ const resetForm = () => {
 
 <style scoped>
 .announcement-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: none;
 }
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .header-title {
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-primary);
 }
+
 .pagination {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
 }
@@ -307,38 +311,44 @@ const resetForm = () => {
 }
 
 .mobile-item {
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  padding: 12px;
-  background: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s;
+}
+
+.mobile-item:active {
+  transform: scale(0.98);
 }
 
 .mobile-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .item-title {
-  font-weight: 500;
-  color: #303133;
-  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 16px;
 }
 
 .mobile-item-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .item-text {
-  color: #606266;
+  color: var(--text-regular);
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -349,16 +359,38 @@ const resetForm = () => {
 .item-date {
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: #909399;
-  font-size: 12px;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .mobile-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding-top: 8px;
-  border-top: 1px solid #ebeef5;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .announcement-card {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  .announcement-card :deep(.el-card__header) {
+    padding: 0 0 16px 0;
+    border: none;
+    background: transparent;
+  }
+  
+  .announcement-card :deep(.el-card__body) {
+    padding: 0;
+    background: transparent;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
 }
 </style>

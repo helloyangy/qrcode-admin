@@ -491,7 +491,7 @@ onUnmounted(() => {
 
 <style scoped>
 .failed-login-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: none;
 }
 
 .card-header {
@@ -503,7 +503,7 @@ onUnmounted(() => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .header-actions {
@@ -513,8 +513,9 @@ onUnmounted(() => {
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .table-container {
@@ -525,21 +526,22 @@ onUnmounted(() => {
 .mobile-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .mobile-item {
-  background: #f8f9fa;
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
-  padding: 12px;
+  background: var(--bg-card);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  box-shadow: var(--shadow-sm);
 }
 
 .mobile-item:active {
-  background: #f0f2f5;
+  background: var(--bg-color);
   transform: scale(0.98);
 }
 
@@ -547,13 +549,13 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .item-account {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
   min-width: 0;
 }
@@ -561,19 +563,19 @@ onUnmounted(() => {
 .item-header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .icon-user {
-  color: #409eff;
-  font-size: 16px;
+  color: var(--primary-color);
+  font-size: 18px;
   flex-shrink: 0;
 }
 
 .account-text {
-  font-weight: 500;
-  font-size: 15px;
-  color: #303133;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -586,21 +588,21 @@ onUnmounted(() => {
 .item-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
 .info-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #606266;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-regular);
 }
 
 .info-icon {
-  font-size: 14px;
-  color: #909399;
+  font-size: 15px;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -612,14 +614,14 @@ onUnmounted(() => {
 
 .item-action {
   position: absolute;
-  right: 12px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
 }
 
 .arrow-icon {
-  color: #c0c4cc;
-  font-size: 16px;
+  color: var(--text-placeholder);
+  font-size: 18px;
 }
 
 .no-data {
@@ -628,7 +630,7 @@ onUnmounted(() => {
 }
 
 .pagination {
-  margin-top: 16px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
 }
@@ -636,8 +638,8 @@ onUnmounted(() => {
 .pagination :deep(.el-pagination) {
   padding: 8px 12px;
   border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .ua-text {
@@ -652,38 +654,42 @@ onUnmounted(() => {
   word-break: break-all;
   line-height: 1.6;
   font-size: 13px;
-  color: #606266;
-  background: #f5f7fa;
-  padding: 8px;
-  border-radius: 4px;
+  color: var(--text-regular);
+  background: var(--bg-color);
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
+  .failed-login-card {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
   .failed-login-card :deep(.el-card__header) {
-    padding: 14px 16px;
+    padding: 0 0 16px 0;
+    border: none;
+    background: transparent;
   }
 
   .failed-login-card :deep(.el-card__body) {
-    padding: 12px;
+    padding: 0;
+    background: transparent;
   }
 
   .header-title {
-    font-size: 15px;
-  }
-
-  .mobile-item {
-    padding: 10px;
+    font-size: 20px;
   }
 
   .pagination {
-    margin-top: 12px;
+    margin-top: 16px;
   }
 
   .pagination :deep(.el-pager li) {
@@ -702,37 +708,21 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
-  .failed-login-card :deep(.el-card__header) {
-    padding: 12px;
-  }
-
-  .failed-login-card :deep(.el-card__body) {
-    padding: 10px;
-  }
-
-  .header-title {
-    font-size: 14px;
-  }
-
-  .mobile-list {
-    gap: 10px;
-  }
-
   .mobile-item {
-    padding: 10px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
   }
 
   .account-text {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .info-row {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .info-icon {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .pagination :deep(.el-pager li) {
@@ -760,7 +750,7 @@ onUnmounted(() => {
 /* 弹窗内容优化 */
 @media (max-width: 480px) {
   :deep(.el-dialog__body) {
-    padding: 12px;
+    padding: 16px;
   }
 
   :deep(.el-descriptions__label) {

@@ -9,7 +9,7 @@
 
     <!-- 左侧菜单 -->
     <el-aside
-      :width="isCollapse ? '0' : '200px'"
+      :width="isCollapse ? '0' : '240px'"
       class="aside"
       :class="{ 'mobile-drawer': isMobile, collapsed: isCollapse }"
     >
@@ -44,25 +44,14 @@
           <span>系统监控</span>
         </el-menu-item>
 
-        <el-menu-item index="/dashboard/generate">
-          <el-icon><Position /></el-icon>
-          <span>二维码生成</span>
-        </el-menu-item>
-
-        <el-menu-item index="/dashboard/generate-colorful">
-          <el-icon><MagicStick /></el-icon>
-          <span>彩色二维码生成</span>
-        </el-menu-item>
-
-        <!-- ✅ 新增：隐藏二维码菜单 -->
-        <el-menu-item index="/dashboard/hidden">
-          <el-icon><View /></el-icon>
-          <span>隐藏二维码（可扫）</span>
-        </el-menu-item>
-
         <el-menu-item index="/dashboard/records">
           <el-icon><List /></el-icon>
           <span>二维码记录</span>
+        </el-menu-item>
+
+        <el-menu-item index="/dashboard/miniapp-files">
+          <el-icon><Folder /></el-icon>
+          <span>小程序文件</span>
         </el-menu-item>
 
         <el-menu-item index="/dashboard/announcements">
@@ -75,14 +64,9 @@
           <span>破解记录</span>
         </el-menu-item>
 
-        <el-menu-item index="/dashboard/profile">
+        <el-menu-item index="/dashboard/account">
           <el-icon><User /></el-icon>
-          <span>修改用户名</span>
-        </el-menu-item>
-
-        <el-menu-item index="/dashboard/password">
-          <el-icon><Lock /></el-icon>
-          <span>修改密码</span>
+          <span>账户设置</span>
         </el-menu-item>
       </el-menu>
     </el-aside>
@@ -102,9 +86,14 @@
         </div>
 
         <div class="header-right">
-          <span class="user">{{ displayName }}</span>
+          <el-button type="primary" size="small" @click="goToTools">
+            <el-icon :class="{ 'mr-1': !isMobile }"><Position /></el-icon>
+            <span v-if="!isMobile">返回前台</span>
+          </el-button>
+          <span v-if="!isMobile" class="user">{{ displayName }}</span>
           <el-button type="danger" size="small" @click="handleLogout">
-            退出
+            <el-icon :class="{ 'mr-1': !isMobile }"><SwitchButton /></el-icon>
+            <span v-if="!isMobile">退出</span>
           </el-button>
         </div>
       </el-header>
@@ -113,7 +102,7 @@
       <el-main class="content">
         <div class="content-inner">
           <router-view v-slot="{ Component }">
-            <transition name="fade" mode="out-in">
+            <transition name="fade">
               <component :is="Component" />
             </transition>
           </router-view>
@@ -139,11 +128,11 @@ import {
   Fold,
   Expand,
   Close,
-  MagicStick,
-  View,
   Bell,
   Odometer,
   Setting,
+  Folder,
+  SwitchButton,
 } from '@element-plus/icons-vue'
 
 const props = defineProps({
@@ -179,6 +168,10 @@ const handleLogout = async () => {
   }
 }
 
+const goToTools = () => {
+  router.push('/tools')
+}
+
 const checkMobile = () => {
   isMobile.value = window.innerWidth <= 768
   if (isMobile.value) {
@@ -201,57 +194,54 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 保持你的原样式不变，下面直接原样贴回 */
-
+/* Modern Layout Styles */
 .layout {
   height: 100vh;
-  background: #f5f7fa;
+  background: var(--bg-color);
   position: relative;
   overflow: hidden;
 }
 
-/* 移动端遮罩层 */
+/* Mobile Overlay */
 .mobile-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
   z-index: 1000;
   animation: fadeIn 0.3s;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* 左侧菜单 */
+/* Sidebar */
 .aside {
-  background: #ffffff;
-  border-right: 1px solid #ebeef5;
+  background: var(--bg-card);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
+  z-index: 10;
+  border-right: none;
 }
 
-/* 移动端抽屉样式 */
+/* Mobile Drawer */
 .aside.mobile-drawer {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
-  width: 200px !important;
+  width: 240px !important;
   z-index: 1001;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
   transform: translateX(0);
-  transition: transform 0.3s ease;
 }
 
 .aside.mobile-drawer.collapsed {
@@ -259,85 +249,130 @@ onUnmounted(() => {
 }
 
 .brand {
-  height: 56px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   box-sizing: border-box;
-  border-bottom: 1px solid #ebeef5;
-  font-weight: 600;
-  color: #303133;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--primary-color);
+  letter-spacing: -0.5px;
 }
 
 .brand-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .mobile-close {
   flex-shrink: 0;
 }
 
+/* Menu Customization */
 .menu {
   border-right: none;
   flex: 1;
   overflow-y: auto;
+  padding: 10px;
 }
 
-/* 右侧主体 */
+:deep(.el-menu) {
+  border-right: none;
+  background: transparent;
+}
+
+:deep(.el-menu-item) {
+  height: 50px;
+  line-height: 50px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  color: var(--text-regular);
+  font-weight: 500;
+}
+
+:deep(.el-menu-item:hover) {
+  background-color: var(--bg-color);
+  color: var(--primary-color);
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+:deep(.el-menu-item .el-icon) {
+  font-size: 18px;
+  margin-right: 12px;
+}
+
+/* Main Area */
 .main {
   min-width: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: var(--bg-color);
 }
 
 .header {
-  background: #ffffff;
-  border-bottom: 1px solid #ebeef5;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 24px;
   box-sizing: border-box;
-  height: 56px;
+  height: 64px;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 9;
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   min-width: 0;
   flex: 1;
 }
 
 .page-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #303133;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.025em;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   flex-shrink: 0;
 }
 
 .user {
   font-size: 14px;
-  color: #606266;
-  white-space: nowrap;
+  font-weight: 500;
+  color: var(--text-regular);
+  background: var(--bg-color);
+  padding: 6px 12px;
+  border-radius: 20px;
 }
 
 .content {
-  padding: 16px;
+  padding: 24px;
   box-sizing: border-box;
   overflow: auto;
   flex: 1;
@@ -345,163 +380,34 @@ onUnmounted(() => {
 }
 
 .content-inner {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
-.panel {
-  background: #ffffff;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  padding: 20px;
-  box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+/* Transition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-/* 平板适配 (768px - 1024px) */
-@media (max-width: 1024px) {
-  .content-inner {
-    max-width: 100%;
-  }
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-/* 移动端适配 (≤768px) */
+/* Responsive */
 @media (max-width: 768px) {
   .header {
-    padding: 0 12px;
-    height: 50px;
+    padding: 0 16px;
+    height: 56px;
   }
-
-  .page-title {
-    font-size: 15px;
-  }
-
-  .user {
-    font-size: 13px;
-  }
-
+  
   .content {
-    padding: 12px;
-  }
-
-  .panel {
     padding: 16px;
-    border-radius: 6px;
   }
-
-  .menu :deep(.el-menu-item) {
-    height: 50px;
-    line-height: 50px;
-    font-size: 15px;
-  }
-}
-
-/* 小屏手机适配 (≤480px) */
-@media (max-width: 480px) {
-  .header {
-    padding: 0 10px;
-    height: 48px;
-  }
-
-  .header-left {
-    gap: 8px;
-  }
-
-  .header-right {
-    gap: 8px;
-  }
-
+  
   .page-title {
-    font-size: 14px;
-  }
-
-  .user {
-    display: none;
-  }
-
-  .content {
-    padding: 10px;
-  }
-
-  .panel {
-    padding: 12px;
-    border-radius: 4px;
-  }
-
-  .header-right :deep(.el-button) {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-}
-
-/* 超小屏适配 (≤375px) */
-@media (max-width: 375px) {
-  .header {
-    padding: 0 8px;
-  }
-
-  .page-title {
-    font-size: 13px;
-  }
-
-  .content {
-    padding: 8px;
-  }
-
-  .panel {
-    padding: 10px;
-  }
-
-  .header-right :deep(.el-button) {
-    padding: 5px 10px;
-    font-size: 12px;
-  }
-}
-
-/* 触摸优化 */
-@media (hover: none) and (pointer: coarse) {
-  .el-button {
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .menu :deep(.el-menu-item) {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .menu :deep(.el-menu-item:active) {
-    background-color: #f5f7fa;
-  }
-}
-
-/* 防止内容溢出 */
-* {
-  box-sizing: border-box;
-}
-
-/* 滚动条美化（仅PC端） */
-@media (min-width: 769px) {
-  .content::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  .content::-webkit-scrollbar-thumb {
-    background: #dcdfe6;
-    border-radius: 4px;
-  }
-
-  .content::-webkit-scrollbar-thumb:hover {
-    background: #c0c4cc;
-  }
-
-  .menu::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .menu::-webkit-scrollbar-thumb {
-    background: #dcdfe6;
-    border-radius: 3px;
+    font-size: 16px;
   }
 }
 </style>

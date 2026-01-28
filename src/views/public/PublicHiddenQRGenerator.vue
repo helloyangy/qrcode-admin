@@ -36,7 +36,24 @@
               </el-upload>
             </el-form-item>
 
-            <el-form-item label="2. 上传二维码" prop="qr_image">
+            <el-form-item label="2. 二维码来源">
+                 <el-radio-group v-model="form.qr_mode" size="default" style="width: 100%">
+                   <el-radio-button value="text" style="width: 50%">输入文本</el-radio-button>
+                   <el-radio-button value="image" style="width: 50%">上传图片</el-radio-button>
+                 </el-radio-group>
+            </el-form-item>
+
+            <el-form-item v-if="form.qr_mode === 'text'" label="二维码内容" prop="qr_content">
+                <el-input 
+                  v-model="form.qr_content" 
+                  type="textarea" 
+                  :rows="3" 
+                  placeholder="请输入链接或文本内容" 
+                  @input="onQrContentChange"
+                />
+            </el-form-item>
+
+            <el-form-item v-if="form.qr_mode === 'image'" label="上传二维码图片" prop="qr_image">
               <el-upload
                 class="full-width-upload"
                 drag
@@ -80,6 +97,18 @@
                     :min="50"
                     :max="3000"
                     :step="10"
+                    controls-position="right"
+                    style="width: 100%"
+                  />
+                </el-form-item>
+            </div>
+
+            <div class="param-row">
+                 <el-form-item label="点阵大小 (Pixel Size)">
+                  <el-input-number
+                    v-model="form.pixel_size"
+                    :min="1"
+                    :max="50"
                     controls-position="right"
                     style="width: 100%"
                   />
@@ -261,20 +290,38 @@ const isResizing = ref(false)
 const resizeStart = { x: 0, initialSize: 0 }
 
 const form = reactive({
+  qr_mode: 'text',
+  qr_content: '',
   alpha: 150,
   threshold: 200,
   qr_size: 300,
+  pixel_size: 10,
   position: 'center', // 默认居中
   padding: 20,
   x: 0,
   y: 0,
 })
 
-const rules = {
+const rules = computed(() => ({
   bg_image: [{ required: true, message: '请上传背景图' }],
-  qr_image: [{ required: true, message: '请上传二维码' }],
+  qr_image: [{ required: form.qr_mode === 'image', message: '请上传二维码' }],
+  qr_content: [{ required: form.qr_mode === 'text', message: '请输入二维码内容' }],
   qr_size: [{ required: true, message: '请输入大小' }],
+}))
+
+const onQrContentChange = () => {
+  // 如果是文本模式且没有预览图，设置一个占位图以便用户可以看到拖拽框
+  if (form.qr_mode === 'text' && !qrPreview.value) {
+    qrPreview.value = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIiBvcGFjaXR5PSIwLjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNCI+UVIgUGxhY2Vob2xkZXI8L3RleHQ+PC9zdmc+'
+    nextTick(() => recalcPosition())
+  }
 }
+
+watch(() => form.qr_mode, (val) => {
+  if (val === 'text' && !qrPreview.value) {
+    onQrContentChange()
+  }
+})
 
 // 计算二维码在画布上的样式
 const qrLayerStyle = computed(() => {
@@ -557,8 +604,18 @@ const stopResize = () => {
 
 // 提交
 const submit = async () => {
-  if (!bgFile.value || !qrFile.value) {
-    ElMessage.warning('请先上传背景和二维码')
+  if (!bgFile.value) {
+    ElMessage.warning('请先上传背景')
+    return
+  }
+  
+  if (form.qr_mode === 'image' && !qrFile.value) {
+    ElMessage.warning('请上传二维码图片')
+    return
+  }
+  
+  if (form.qr_mode === 'text' && !form.qr_content) {
+    ElMessage.warning('请输入二维码内容')
     return
   }
 
@@ -580,16 +637,31 @@ const submit = async () => {
   try {
     const fd = new FormData()
     fd.append('bg_image', bgFile.value)
-    fd.append('qr_image', qrFile.value)
+    
+    if (form.qr_mode === 'image') {
+      fd.append('qr_image', qrFile.value)
+    } else {
+      fd.append('qr_content', form.qr_content)
+    }
+    
     fd.append('alpha', form.alpha)
     fd.append('threshold', form.threshold)
     fd.append('qr_size', form.qr_size)
+    fd.append('pixel_size', form.pixel_size)
     fd.append('position', form.position)
     
     // 强制传坐标，后端如果 position=custom 会用
     fd.append('x', Math.round(form.x))
     fd.append('y', Math.round(form.y))
     fd.append('padding', form.padding)
+
+    // 新增：拖拽/预览参数，优先级高于 position/x/y
+    if (form.position === 'custom' && bgImgRef.value) {
+      fd.append('preview_width', bgImgRef.value.offsetWidth)
+      fd.append('preview_height', bgImgRef.value.offsetHeight)
+      fd.append('drag_x', form.x * displayScale.value)
+      fd.append('drag_y', form.y * displayScale.value)
+    }
     
     const res = await generatePublicHiddenQRCode(fd)
     if (res.data?.qr_url) {

@@ -35,7 +35,23 @@
               </el-upload>
             </el-form-item>
 
-            <el-form-item label="二维码" prop="qr_image">
+            <el-form-item label="二维码源">
+              <el-radio-group v-model="form.qr_mode" size="small">
+                <el-radio-button value="text">输入文本</el-radio-button>
+                <el-radio-button value="image">上传图片</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item v-if="form.qr_mode === 'text'" label="内容" prop="qr_content">
+              <el-input 
+                v-model="form.qr_content" 
+                placeholder="输入链接或文本" 
+                clearable 
+                @input="onQrContentChange"
+              />
+            </el-form-item>
+
+            <el-form-item v-if="form.qr_mode === 'image'" label="图片" prop="qr_image">
               <el-upload
                 class="mini-upload"
                 :auto-upload="false"
@@ -81,6 +97,16 @@
                 :min="50"
                 :max="3000"
                 :step="10"
+                controls-position="right"
+                size="small"
+              />
+            </el-form-item>
+
+            <el-form-item label="点阵大小" class="short-item">
+              <el-input-number
+                v-model="form.pixel_size"
+                :min="1"
+                :max="50"
                 controls-position="right"
                 size="small"
               />
@@ -257,20 +283,24 @@ const isResizing = ref(false)
 const resizeStart = { x: 0, initialSize: 0 }
 
 const form = reactive({
+  qr_mode: 'text',
+  qr_content: '',
   alpha: 150,
   threshold: 200,
   qr_size: 300,
+  pixel_size: 10,
   position: 'center', // 默认居中
   padding: 20,
   x: 0,
   y: 0,
 })
 
-const rules = {
+const rules = computed(() => ({
   bg_image: [{ required: true, message: '请上传背景图' }],
-  qr_image: [{ required: true, message: '请上传二维码' }],
+  qr_image: [{ required: form.qr_mode === 'image', message: '请上传二维码' }],
+  qr_content: [{ required: form.qr_mode === 'text', message: '请输入二维码内容' }],
   qr_size: [{ required: true, message: '请输入大小' }],
-}
+}))
 
 // 计算二维码在画布上的样式
 const qrLayerStyle = computed(() => {
@@ -563,10 +593,35 @@ const stopResize = () => {
   document.removeEventListener('touchend', stopResize)
 }
 
+const onQrContentChange = () => {
+  // 如果是文本模式且没有预览图，设置一个占位图以便用户可以看到拖拽框
+  if (form.qr_mode === 'text' && !qrPreview.value) {
+    // 简单的 1x1 透明图或者灰色图，这里用一个简单的 base64 占位
+    qrPreview.value = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIiBvcGFjaXR5PSIwLjUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNCI+UVIgUGxhY2Vob2xkZXI8L3RleHQ+PC9zdmc+'
+    nextTick(() => recalcPosition())
+  }
+}
+
+watch(() => form.qr_mode, (val) => {
+  if (val === 'text' && !qrPreview.value) {
+    onQrContentChange()
+  }
+})
+
 // 提交
 const submit = async () => {
-  if (!bgFile.value || !qrFile.value) {
-    ElMessage.warning('请先上传背景和二维码')
+  if (!bgFile.value) {
+    ElMessage.warning('请先上传背景')
+    return
+  }
+  
+  if (form.qr_mode === 'image' && !qrFile.value) {
+    ElMessage.warning('请上传二维码图片')
+    return
+  }
+  
+  if (form.qr_mode === 'text' && !form.qr_content) {
+    ElMessage.warning('请输入二维码内容')
     return
   }
 
@@ -588,16 +643,34 @@ const submit = async () => {
   try {
     const fd = new FormData()
     fd.append('bg_image', bgFile.value)
-    fd.append('qr_image', qrFile.value)
+    
+    if (form.qr_mode === 'image') {
+      fd.append('qr_image', qrFile.value)
+    } else {
+      fd.append('qr_content', form.qr_content)
+    }
+    
     fd.append('alpha', form.alpha)
     fd.append('threshold', form.threshold)
     fd.append('qr_size', form.qr_size)
+    fd.append('pixel_size', form.pixel_size)
     fd.append('position', form.position)
     
     // 强制传坐标，后端如果 position=custom 会用
     fd.append('x', Math.round(form.x))
     fd.append('y', Math.round(form.y))
     fd.append('padding', form.padding)
+
+    // 新增：拖拽/预览参数，优先级高于 position/x/y
+    if (form.position === 'custom' && bgImgRef.value) {
+      fd.append('preview_width', bgImgRef.value.offsetWidth)
+      fd.append('preview_height', bgImgRef.value.offsetHeight)
+      // drag_x/y 为视觉坐标，即 form.x * displayScale
+      // 注意：form.x 是基于 displayScale 反推回来的“真实”坐标，所以这里再次乘回去就是视觉坐标
+      // 实际上直接用 dragStart.left 也可以，但 form.x 是最终源
+      fd.append('drag_x', form.x * displayScale.value)
+      fd.append('drag_y', form.y * displayScale.value)
+    }
     
     const apiFunc = props.isPublic ? generatePublicHiddenQRCode : generateHiddenQRCode
     const res = await apiFunc(fd)
@@ -677,11 +750,21 @@ onMounted(() => {
 .hidden-qr-card {
   max-width: 1200px;
   margin: 0 auto;
+  border: none;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+}
+
+/* Override card header padding/border if needed */
+.hidden-qr-card :deep(.el-card__header) {
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 24px;
 }
 
 .main-layout {
   display: flex;
-  gap: 20px;
+  gap: 24px;
 }
 
 .main-layout.is-mobile {
@@ -689,17 +772,21 @@ onMounted(() => {
 }
 
 .form-section {
-  flex: 0 0 320px; /* 固定宽度 */
-  background: #fff;
+  flex: 0 0 340px; /* Increased width slightly */
+  background: var(--bg-card);
+}
+
+.qr-form {
+  padding-right: 12px;
 }
 
 .preview-section-interactive {
   flex: 1;
-  min-width: 0; /* 防止flex子项溢出 */
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid #eee;
+  min-width: 0;
+  background: var(--bg-color);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
@@ -708,28 +795,31 @@ onMounted(() => {
 .interactive-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 16px;
   font-weight: 600;
-  color: #606266;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .canvas-container {
   position: relative;
   width: 100%;
-  background: #e9e9e9;
-  border-radius: 4px;
+  background: #e5e7eb; /* Slightly darker than bg-color for contrast */
+  border-radius: 8px;
   overflow: hidden;
-  min-height: 300px;
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--border-color);
 }
 
 .canvas-wrapper {
   position: relative;
   width: 100%;
   line-height: 0;
+  box-shadow: var(--shadow-md);
 }
 
 .bg-layer {
@@ -740,96 +830,173 @@ onMounted(() => {
 }
 
 .qr-layer {
-  border: 2px dashed #409eff;
+  border: 2px dashed var(--primary-color);
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.3);
-  /* 交互样式 */
-  touch-action: none; /* 阻止移动端默认滚动 */
+  touch-action: none;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .qr-layer:hover {
   background: rgba(255, 255, 255, 0.5);
-  border-color: #66b1ff;
+  border-color: var(--primary-light);
 }
 
 .qr-img-content {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  opacity: 0.8;
-  pointer-events: none; /* 让鼠标事件透传给 qr-layer div */
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 .resize-handle {
   position: absolute;
-  right: -6px;
-  bottom: -6px;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border: 1px solid #409eff;
+  right: -8px;
+  bottom: -8px;
+  width: 24px;
+  height: 24px;
+  background: var(--bg-card);
+  border: 2px solid var(--primary-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: se-resize;
   z-index: 11;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  color: #409eff;
+  box-shadow: var(--shadow-sm);
+  color: var(--primary-color);
   font-size: 12px;
+  transition: all 0.2s;
 }
 
 .resize-handle:hover {
-  background: #ecf5ff;
+  background: var(--primary-light);
   transform: scale(1.1);
 }
 
 .empty-state {
   text-align: center;
-  color: #909399;
+  color: var(--text-placeholder);
 }
+
 .empty-icon {
   font-size: 48px;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  color: var(--text-placeholder);
 }
 
 /* 结果区 */
 .result-area {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #ddd;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
   text-align: center;
 }
-.result-img {
-  max-width: 200px;
-  margin: 10px 0;
-  border: 1px solid #eee;
-  border-radius: 4px;
+
+.result-title {
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
+
+.result-img {
+  max-width: 240px;
+  margin: 16px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
 .result-actions {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* 表单微调 */
 .mini-upload {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 8px;
 }
+
 .mini-tip {
   font-size: 12px;
-  color: #999;
-  margin-top: 4px;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
+
 .short-item {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
+
 .submit-area {
-  margin-top: 20px;
+  margin-top: 32px;
 }
+
 .submit-btn {
   width: 100%;
+  height: 40px;
+  font-size: 16px;
+}
+
+.upload-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Element Plus overrides */
+:deep(.el-divider__text) {
+  background-color: var(--bg-card);
+  color: var(--text-secondary);
+}
+
+:deep(.el-form-item__label) {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .hidden-qr-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0;
+  }
+  
+  .hidden-qr-card :deep(.el-card__header) {
+    padding: 0 0 16px 0;
+    border: none;
+    background: transparent;
+  }
+  
+  .hidden-qr-card :deep(.el-card__body) {
+    padding: 0;
+    background: transparent;
+  }
+
+  .header-icon {
+    display: none;
+  }
+  
+  .form-section {
+    flex: none;
+    width: 100%;
+    background: var(--bg-card);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .preview-section-interactive {
+    margin-top: 16px;
+    padding: 16px;
+  }
+  
+  .qr-form {
+    padding-right: 0;
+  }
 }
 </style>

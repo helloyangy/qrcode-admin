@@ -274,12 +274,12 @@ const form = reactive({
 const predefineColors = [
     '#000000',
     '#ffffff',
-    '#4F46E5',
-    '#6366F1',
-    '#EC4899',
-    '#F97316',
-    '#22C55E',
-    '#0EA5E9',
+    '#409EFF',
+    '#67C23A',
+    '#E6A23C',
+    '#F56C6C',
+    '#909399',
+    '#337ECC',
 ]
 
 const getFileTip = () => {

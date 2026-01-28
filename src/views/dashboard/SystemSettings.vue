@@ -347,8 +347,7 @@ onMounted(() => {
 
 <style scoped>
 .settings-card {
-  /* max-width: 1000px;  Removed max-width to let it fill container if needed, or keep it but larger */
-  /* margin: 0 auto; */
+  border: none;
 }
 
 .card-header {
@@ -360,7 +359,7 @@ onMounted(() => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .header-right {
@@ -369,26 +368,63 @@ onMounted(() => {
 }
 
 .header-icon {
-  font-size: 20px;
-  color: #409eff;
+  font-size: 22px;
+  color: var(--primary-color);
+  background: var(--primary-light);
+  padding: 8px;
+  border-radius: 8px;
 }
 
 .header-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .settings-tabs {
-  margin-top: -10px; /* Adjust for el-form padding if any, or just spacing */
+  margin-top: 0;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:deep(.el-tabs__content) {
+  padding: 24px 0 !important;
+}
+
+:deep(.el-tabs__header) {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+:deep(.el-tabs__item) {
+  height: 48px;
+  line-height: 48px;
+  border: none !important;
+  color: var(--text-regular) !important;
+  font-weight: 500;
+  transition: all 0.3s;
+  background: transparent !important;
+  margin-right: 4px;
+  border-radius: 8px 8px 0 0;
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color) !important;
+  background: rgba(64, 158, 255, 0.05) !important;
+}
+
+:deep(.el-tabs__item:hover) {
+  color: var(--primary-color) !important;
 }
 
 .tab-content {
-  padding: 20px 0;
+  padding: 0 10px;
 }
 
 .mb-20 {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .mt-2 {
@@ -400,26 +436,67 @@ onMounted(() => {
 }
 
 .mr-1 {
-  margin-right: 4px;
+  margin-right: 6px;
 }
 
 .form-tip {
   font-size: 13px;
-  color: #909399;
-  line-height: 1.5;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-/* Responsive adjustments if needed */
+/* Responsive adjustments */
 @media (max-width: 768px) {
+  .settings-card {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .settings-card :deep(.el-card__header) {
+    padding: 0 0 16px 0;
+    border: none;
+    background: transparent;
+  }
+
+  .settings-card :deep(.el-card__body) {
+    padding: 0;
+    background: transparent;
+  }
+
   .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
   
+  .header-icon {
+    display: none;
+  }
+
+  .header-title {
+    font-size: 20px;
+  }
+  
   .header-right {
     width: 100%;
-    justify-content: flex-end;
+  }
+
+  .header-right .el-button {
+    flex: 1;
+    height: 40px;
+  }
+  
+  .settings-tabs {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: var(--shadow-sm) !important;
+  }
+
+  :deep(.el-tabs__item) {
+    height: 44px;
+    line-height: 44px;
+    font-size: 14px;
   }
 }
 </style>

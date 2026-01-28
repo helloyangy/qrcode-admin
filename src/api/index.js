@@ -2,6 +2,7 @@ import request from '../utils/request'
 import * as authApi from './auth'
 import * as qrcodeApi from './qrcode'
 import * as monitorApi from './monitor'
+import * as fileApi from './file'
 
 // 导出 request 实例以兼容旧代码
 export default request
@@ -16,5 +17,6 @@ export const apiHiddenGenerateQRCode = qrcodeApi.generateHiddenQRCode
 export {
   authApi,
   qrcodeApi,
-  monitorApi
+  monitorApi,
+  fileApi
 }

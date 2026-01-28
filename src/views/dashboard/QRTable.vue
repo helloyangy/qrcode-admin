@@ -53,7 +53,7 @@
             <el-icon style="margin-right: 4px; color: #409eff">
               <Link />
             </el-icon>
-            <span>内容 / 链接</span>
+            <span>地址</span>
           </template>
           <template #default="{ row }">
             <div class="url-cell">
@@ -306,13 +306,13 @@ const getTypeName = (type) => {
 
 const getTypeTagEffect = (type) => {
     const map = {
-        url: '',
+        url: 'primary',
         text: 'info',
         image: 'success',
         pdf: 'danger',
         word: 'warning'
     }
-    return map[type] || ''
+    return map[type] || 'primary'
 }
 
 // 统一分页请求：带上 page 和 per_page
@@ -461,7 +461,15 @@ onUnmounted(() => {
 
 <style scoped>
 .qr-table-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: none;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+}
+
+.qr-table-card :deep(.el-card__header) {
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 24px;
 }
 
 .card-header {
@@ -473,18 +481,19 @@ onUnmounted(() => {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .table-container {
@@ -503,15 +512,16 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text-primary);
 }
 
 .text-gray {
-    color: #909399;
+  color: var(--text-secondary);
 }
 
 .image-error {
   font-size: 12px;
-  color: #f56c6c;
+  color: var(--danger-color);
   text-align: center;
 }
 
@@ -523,33 +533,45 @@ onUnmounted(() => {
 }
 
 .mobile-item {
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-  padding: 12px;
-  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
 }
 
 .mobile-item-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.item-id {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .mobile-item-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .info-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #606266;
+  gap: 10px;
+  color: var(--text-secondary);
   font-size: 14px;
+}
+
+.info-icon {
+  font-size: 16px;
+  color: var(--text-placeholder);
 }
 
 .content-wrapper {
@@ -564,177 +586,90 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-primary);
 }
 
 .copy-icon {
   cursor: pointer;
-  color: #409eff;
+  color: var(--primary-color);
+  font-size: 16px;
 }
 
 .mobile-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid #ebeef5;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
 }
 
 .no-data {
-  padding: 40px 0;
+  padding: 60px 0;
   text-align: center;
 }
 
 .pagination {
-  margin-top: 16px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
 }
 
 .pagination :deep(.el-pagination) {
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
 }
 
 /* PC端表格优化 */
-:deep(.el-table__body-wrapper .el-table__cell),
-:deep(.el-table__header-wrapper .el-table__cell) {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
+:deep(.el-table) {
+  --el-table-header-bg-color: var(--bg-color);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-border-color: var(--border-color);
 }
 
-:deep(.el-image-viewer__wrapper) {
-  background-color: rgba(0, 0, 0, 0.8);
+:deep(.el-table th.el-table__cell) {
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-color);
+}
+
+:deep(.el-table__body-wrapper .el-table__cell),
+:deep(.el-table__header-wrapper .el-table__cell) {
+  border-bottom-color: var(--border-color);
+  padding: 12px 0;
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
+  .qr-table-card {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0;
+  }
+
   .qr-table-card :deep(.el-card__header) {
-    padding: 14px 16px;
+    padding: 0 0 16px 0;
+    border: none;
+    background: transparent;
   }
 
   .qr-table-card :deep(.el-card__body) {
-    padding: 12px;
+    padding: 0;
+    background: transparent;
   }
 
   .header-title {
-    font-size: 15px;
+    font-size: 20px;
   }
 
   .mobile-item {
-    padding: 10px;
+    padding: 16px;
   }
 
   .pagination {
-    margin-top: 12px;
-  }
-
-  .pagination :deep(.el-pager li) {
-    min-width: 32px;
-    height: 32px;
-    line-height: 32px;
-    font-size: 13px;
-  }
-
-  .pagination :deep(.btn-prev),
-  .pagination :deep(.btn-next) {
-    min-width: 32px;
-    height: 32px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .qr-table-card :deep(.el-card__header) {
-    padding: 12px;
-  }
-
-  .qr-table-card :deep(.el-card__body) {
-    padding: 10px;
-  }
-
-  .header-title {
-    font-size: 14px;
-  }
-
-  .mobile-list {
-    gap: 10px;
-  }
-
-  .mobile-item {
-    padding: 10px;
-    border-radius: 6px;
-  }
-
-  .item-header {
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-  }
-
-  .id-text {
-    font-size: 12px;
-  }
-
-  .qr-thumb {
-    width: 45px;
-    height: 45px;
-  }
-
-  .thumb-error {
-    width: 45px;
-    height: 45px;
-    font-size: 18px;
-  }
-
-  .info-row {
-    font-size: 12px;
-  }
-
-  .info-grid {
-    gap: 6px;
-  }
-
-  .info-item {
-    padding: 5px 6px;
-    font-size: 11px;
-  }
-
-  .key-text {
-    font-size: 10px;
-  }
-
-  .copy-btn {
-    font-size: 11px;
-    padding: 0 6px;
-  }
-
-  .pagination :deep(.el-pager li) {
-    min-width: 28px;
-    height: 28px;
-    line-height: 28px;
-    font-size: 12px;
-  }
-
-  .pagination :deep(.btn-prev),
-  .pagination :deep(.btn-next) {
-    min-width: 28px;
-    height: 28px;
-  }
-}
-
-/* 触摸优化 */
-@media (hover: none) and (pointer: coarse) {
-  .mobile-item {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .qr-thumb {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .copy-btn {
-    min-height: 32px;
+    margin-top: 16px;
   }
 }
 </style>

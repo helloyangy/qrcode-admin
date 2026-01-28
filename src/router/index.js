@@ -25,24 +25,6 @@ const router = createRouter({
           meta: { title: '系统监控' }
         },
         {
-          path: 'generate',
-          name: 'Generate',
-          component: () => import('../views/dashboard/QRGenerator.vue'),
-          meta: { title: '二维码生成' }
-        },
-        {
-          path: 'generate-colorful',
-          name: 'GenerateColorful',
-          component: () => import('../views/dashboard/ColorfulQRGenerator.vue'),
-          meta: { title: '彩色二维码生成' }
-        },
-        {
-          path: 'hidden',
-          name: 'HiddenQR',
-          component: () => import('../views/dashboard/HiddenQRGenerator.vue'),
-          meta: { title: '隐藏二维码（可扫）' }
-        },
-        {
           path: 'settings',
           name: 'Settings',
           component: () => import('../views/dashboard/SystemSettings.vue'),
@@ -53,6 +35,12 @@ const router = createRouter({
           name: 'Records',
           component: () => import('../views/dashboard/QRTable.vue'),
           meta: { title: '二维码记录' }
+        },
+        {
+          path: 'miniapp-files',
+          name: 'MiniAppFiles',
+          component: () => import('../views/dashboard/MiniAppFileManager.vue'),
+          meta: { title: '小程序文件' }
         },
         {
           path: 'announcements',
@@ -67,16 +55,10 @@ const router = createRouter({
           meta: { title: '破解记录' }
         },
         {
-          path: 'profile',
-          name: 'Profile',
-          component: () => import('../views/dashboard/ProfileForm.vue'),
-          meta: { title: '修改用户名' }
-        },
-        {
-          path: 'password',
-          name: 'Password',
-          component: () => import('../views/dashboard/PasswordForm.vue'),
-          meta: { title: '修改密码' }
+          path: 'account',
+          name: 'Account',
+          component: () => import('../views/dashboard/AccountSettings.vue'),
+          meta: { title: '账户设置' }
         }
       ]
     },
